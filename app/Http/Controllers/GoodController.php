@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Good;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class GoodController extends Controller
 {
@@ -74,11 +75,20 @@ class GoodController extends Controller
 
     public function destroy(Good $good)
     {
-        $good->delete();
+        try {
+            $good->delete();
 
-        if (request()->wantsJson()) {
-            return response()->noContent();
+            if (request()->wantsJson()) {
+                return response()->noContent();
+            }
+            return redirect()->route('goods.index')->with('success', 'Product deleted successfully.');
+        } catch (QueryException $e) {
+            if (strpos($e->getMessage(), 'FOREIGN KEY') !== false) {
+                return redirect()->route('goods.index')->withErrors([
+                    'error' => 'Cannot delete this product because it has associated sales. Delete the sales records first.',
+                ]);
+            }
+            throw $e;
         }
-        return redirect()->route('goods.index')->with('success', 'Product deleted successfully.');
     }
 }

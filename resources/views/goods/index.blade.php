@@ -5,11 +5,13 @@
 @section('content')
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>Products (Goods)</h1>
-        <a href="{{ route('goods.create') }}" class="btn">+ Add Product</a>
+        @if(auth()->user()->role === 'admin')
+            <a href="{{ route('goods.create') }}" class="btn">+ Add Product</a>
+        @endif
     </div>
 
     @if($goods->isEmpty())
-        <p class="text-muted">No products found. <a href="{{ route('goods.create') }}">Create one</a></p>
+        <p class="text-muted">No products found. @if(auth()->user()->role === 'admin') <a href="{{ route('goods.create') }}">Create one</a>@endif</p>
     @else
         <table>
             <thead>

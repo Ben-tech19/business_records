@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class SupplierController extends Controller
 {
@@ -65,11 +66,20 @@ class SupplierController extends Controller
 
     public function destroy(Supplier $supplier)
     {
-        $supplier->delete();
+        try {
+            $supplier->delete();
 
-        if (request()->wantsJson()) {
-            return response()->noContent();
+            if (request()->wantsJson()) {
+                return response()->noContent();
+            }
+            return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
+        } catch (QueryException $e) {
+            if (strpos($e->getMessage(), 'FOREIGN KEY') !== false) {
+                return redirect()->route('suppliers.index')->withErrors([
+                    'error' => 'Cannot delete this supplier because it has associated products. Delete the products first.',
+                ]);
+            }
+            throw $e;
         }
-        return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
     }
 }

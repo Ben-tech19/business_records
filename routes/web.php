@@ -27,20 +27,24 @@ Route::middleware('auth')->group(function () {
     Route::get('/goods', [GoodController::class, 'index'])->name('goods.index');
     Route::get('/goods/{good}', [GoodController::class, 'show'])->name('goods.show');
     Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
-    Route::get('/sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
 
-    // All users can create/record sales
+    // All users can create/record sales (must come BEFORE {sale} param route)
     Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
 
+    // Specific sales routes
+    Route::get('/sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+
     // Admin-only: Create, Edit, Update, Delete suppliers and goods
     Route::middleware('admin')->group(function () {
+        // Suppliers - create before {supplier} param route
         Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
         Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::get('/suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
         Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
+        // Goods - create before {good} param route
         Route::get('/goods/create', [GoodController::class, 'create'])->name('goods.create');
         Route::post('/goods', [GoodController::class, 'store'])->name('goods.store');
         Route::get('/goods/{good}/edit', [GoodController::class, 'edit'])->name('goods.edit');

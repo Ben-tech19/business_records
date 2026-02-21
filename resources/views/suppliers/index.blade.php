@@ -45,9 +45,6 @@
                                 @endif
                             </div>
                         </td>
-                                </form>
-                            </div>
-                        </td>
                     </tr>
                 @endforeach
             </tbody>
