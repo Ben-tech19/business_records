@@ -23,17 +23,8 @@ Route::middleware('auth')->group(function () {
 
     // All users can read (GET)
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
-    Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
     Route::get('/goods', [GoodController::class, 'index'])->name('goods.index');
-    Route::get('/goods/{good}', [GoodController::class, 'show'])->name('goods.show');
     Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
-
-    // All users can create/record sales (must come BEFORE {sale} param route)
-    Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
-    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
-
-    // Specific sales routes
-    Route::get('/sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
 
     // Admin-only: Create, Edit, Update, Delete suppliers and goods
     Route::middleware('admin')->group(function () {
@@ -53,5 +44,16 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
     });
+
+    // All users can read specific resources
+    Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
+    Route::get('/goods/{good}', [GoodController::class, 'show'])->name('goods.show');
+
+    // All users can create/record sales (must come BEFORE {sale} param route)
+    Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
+    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+
+    // Specific sales routes
+    Route::get('/sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
 });
 

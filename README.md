@@ -59,3 +59,78 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+## Deployment
+
+This application is ready for production. Follow the steps below when deploying:
+
+1. **Environment Variables**
+   - Copy `.env.example` to `.env` and configure for your infrastructure. Example production values are shown in the file.
+   - Generate a new application key on the server (see next step).
+
+2. **Key & Caching**
+   ```bash
+   php artisan key:generate
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   ```
+
+3. **Dependencies & Assets**
+   ```bash
+   composer install --optimize-autoloader --no-dev
+   # if you have a package-lock.json:
+   npm ci && npm run build   # or yarn install && yarn build
+   # otherwise run `npm install && npm run build` to create the lockfile first
+   ```
+
+4. **Database**
+   ```bash
+   php artisan migrate --force
+   php artisan db:seed --class=DatabaseSeeder   # optional sample data
+   ```
+
+5. **Web Server**
+   - Point your document root to the `public/` directory.
+   - Use SSL and configure Nginx/Apache appropriately (see `deploy/nginx.conf`).
+
+6. **Queues & Scheduler**
+   - Use a process supervisor (e.g. Supervisor, systemd) to run `php artisan queue:work`.
+   - Schedule `php artisan schedule:run` to execute every minute via cron.
+
+7. **Continuous Integration/Deployment**
+   - See the example GitHub Actions workflow in `.github/workflows/deploy.yml`.
+
+8. **Web Server Configurations**
+   - **Nginx**: an example vhost is provided at `deploy/nginx.conf`.
+   - **Apache**: example configuration shown below; make sure `mod_rewrite` is enabled and the document root points to `public/`.
+
+### Apache sample
+```apacheconf
+<VirtualHost *:80>
+    ServerName your-domain.com
+    ServerAlias www.your-domain.com
+    DocumentRoot "/var/www/business_records/public"
+
+    <Directory "/var/www/business_records/public">
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    # if using PHP-FPM via proxy
+    <FilesMatch ".+\.php$">
+        SetHandler "proxy:unix:/run/php/php8.2-fpm.sock|fcgi://localhost/"
+    </FilesMatch>
+
+    ErrorLog ${APACHE_LOG_DIR}/business_records_error.log
+    CustomLog ${APACHE_LOG_DIR}/business_records_access.log combined
+
+    # Security headers
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+</VirtualHost>
+```
+Refer to Laravel's official deployment docs for additional hardening and optimization tips.
